@@ -1,13 +1,8 @@
 import requests
+import json
 
-# Server URL
-BASE_URL = "https://fastapi.softvader.online"
-
-# API Key
-API_KEY = "YOUR_API_KEY"  # Use the correct API key that matches the server
-
-# Data to be sent
-data_to_send = {
+url = 'http://sending-raspberry-pi:5000/sync-data'
+data = {
     "Charges": {
         "XYZ123": {
             "AmbientTemperature": "25C",
@@ -24,17 +19,8 @@ data_to_send = {
     }
 }
 
-def test_post_charges():
-    """ Function to send data to the server using POST request """
-    headers = {'x-api-key': API_KEY, 'Content-Type': 'application/json'}
-    response = requests.post(f"{BASE_URL}/data", headers=headers, json=data_to_send)
-    print("Response from server:", response.status_code, response.text)
-
-def post_data(data):
-    """ Function to send data to the server using POST request """
-    headers = {'x-api-key': API_KEY, 'Content-Type': 'application/json'}
-    response = requests.post(f"{BASE_URL}/data", headers=headers, json=data)
-    print("Response from server:", response.status_code, response.text)
-
-if __name__ == "__main__":
-    test_post_charges()
+response = requests.post(url, json=data)
+if response.status_code == 200:
+    print('Data sent successfully')
+else:
+    print('Error sending data')
