@@ -18,20 +18,20 @@ def create_database():
     conn.close()
 
 def insert_data(VINnumber, plateNumber):
-    """
-    Insert the provided VIN number and plate number into the database.
-    Returns True on success, False on failure.
+    """ Insert the provided VIN number and plate number into the database.
+    Returns a tuple (True, dict) on success, and (False, None) on failure.
     """
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     try:
         c.execute("INSERT INTO vehicles (VINnumber, plateNumber) VALUES (?, ?)", (VINnumber, plateNumber))
         conn.commit()
+        result = {'VINnumber': VINnumber, 'plateNumber': plateNumber}
         conn.close()
-        return True
+        return True, result
     except sqlite3.Error:
         conn.close()
-        return False
+        return False, None
     
 def check_vin(VINnumber):
     """
@@ -61,16 +61,15 @@ def check_vin_get_plate(VINnumber):
 
 @app.route('/add-data', methods=['POST'])
 def add_data():
-    """
-    Endpoint to add the provided VIN number and plate number to the database.
-    Returns a JSON response with the 'status' field set to True or False.
+    """ Endpoint to add the provided VIN number and plate number to the database.
+    Returns a JSON response with the 'status' field set to True or False, and the added data if successful.
     """
     data = request.get_json()
     VINnumber = data['VINnumber']
     plateNumber = data['plateNumber']
-
-    if insert_data(VINnumber, plateNumber):
-        return jsonify({'status': True}), 202
+    success, result = insert_data(VINnumber, plateNumber)
+    if success:
+        return jsonify({'status': True, 'data': result}), 202
     else:
         return jsonify({'status': False}), 500
     
